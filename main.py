@@ -22,7 +22,7 @@ def update_traffic_clock(destination):
     motor_degrees = mapping_function(traffic_percent(duration, duration_in_traffic))
     traffic_motor.stop()
     logging.debug('Moving motor to %s' % (str(motor_degrees)))
-    traffic_motor.run_to_position(offset + motor_degrees, speed=50)
+    traffic_motor.run_to_position(offset - motor_degrees, speed=50)
 
 
 def check_buttons(pins):
@@ -59,7 +59,7 @@ parser.add_argument('-o', '--offset', required=True, type=int)
 parser.add_argument('-f', '--frequency', default=10, type=int)
 args = parser.parse_args()
 
-if args.logging_level == 'DEBUG':
+if str(args.logging_level) == 'DEBUG':
     logging.basicConfig(filename=args.logfile, level=logging.DEBUG)
 else:
     logging.basicConfig(filename=args.logfile, level=logging.ERROR)
