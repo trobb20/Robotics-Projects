@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from maps_api import google_maps_api_call, return_times_from_api
-from duration_math import *
+from control_clock import *
 import logging
 import buildhat
 import RPi.GPIO as GPIO
