@@ -24,17 +24,18 @@ def mapping_function(x):
     return y
 
 
-def update_traffic_clock(motor, offset, destination):
+def update_traffic_clock(motor, offset, origin, destination):
     """
     Updates the traffic clock depending on a destination (Plus code)
     uses maps_api and duration_math to map a traffic situation to the clock.
     :param motor: buildhat motor object
     :param offset: home position of motor
-    :param destination: Plus code of where you want to go (From tufts)
+    :param origin: plus code of where you want to go from
+    :param destination: Plus code of where you want to go to
     :return: None
     """
     motor.start(speed=100)  # animation
-    response = google_maps_api_call('CV5J+CM Medford, Massachusetts', destination, 'api_key.txt')
+    response = google_maps_api_call(origin, destination, 'api_key.txt')
     duration, duration_in_traffic = return_times_from_api(response)
     motor_degrees = mapping_function(traffic_percent(duration, duration_in_traffic))
     time.sleep(1)

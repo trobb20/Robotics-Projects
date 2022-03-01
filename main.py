@@ -57,7 +57,7 @@ while True:
         # A single button is turned on, check which one
         pin_pressed = pin_df.loc[1]['Pin']
         logging.debug('Pressed pin: %s' % str(pin_pressed))
-        update_traffic_clock(traffic_motor, offset, button_map.loc[pin_pressed]['Location'])
+        update_traffic_clock(traffic_motor, offset, 'CV4M+G8 Medford, Massachusetts', button_map.loc[pin_pressed]['Location'])
     elif sum(pin_df.index) == 2:
         # multiple buttons are pressed, exit the program.
         break
