@@ -2,3 +2,4 @@
 *.xml
 *.iml
 toothpaste_dispenser/OnshapeSpikePrime/apikeys.py
+.idea/*
