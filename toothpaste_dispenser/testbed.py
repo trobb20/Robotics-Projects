@@ -36,7 +36,7 @@ def get_request(client, url: str, base: str, end: str):
     return parsed
 
 base = 'https://cad.onshape.com'
-url = 'https://cad.onshape.com/documents/e61d2284326681e60c354303/w/06c3440ad86b926c4800c9f0/e/4a24c86674282951b16e2dcf'
+url = 'https://cad.onshape.com/documents/e61d2284326681e60c354303/w/06c3440ad86b926c4800c9f0/e/a34262dd0483af23abdb4057'
 client = configure_client('OnshapeSpikePrime/apikeys.txt')
 
-parsed = get_request(client, url, base, 'matevalues')
+parsed = massProp(client, url, base)
