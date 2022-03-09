@@ -83,6 +83,8 @@ def getMates(client,url,base):
     fixed_url = fixed_url.replace('wid', element.wvmid)
     fixed_url = fixed_url.replace('eid', element.eid)
 
+    print(base + fixed_url)
+
     response = client.api_client.request(method, url=base + fixed_url, query_params=params, headers=headers, body=payload)
 
     parsed = json.loads(response.data)
@@ -113,26 +115,26 @@ def setMates(client,url,base,body):
 
 ## Mass Prop test
 def massProp(client, url: str, base):
-  fixed_url = '/api/partstudios/d/did/w/wid/e/eid/massproperties'
-  element = OnshapeElement(url)
-  method = 'GET'
+    fixed_url = '/api/partstudios/d/did/w/wid/e/eid/massproperties'
+    element = OnshapeElement(url)
+    method = 'GET'
 
-  params = {}
-  payload = {}
-  headers = {'Accept': 'application/vnd.onshape.v1+json; charset=UTF-8;qs=0.1',
+    params = {}
+    payload = {}
+    headers = {'Accept': 'application/vnd.onshape.v1+json; charset=UTF-8;qs=0.1',
             'Content-Type': 'application/json'}
 
-  fixed_url = fixed_url.replace('did', element.did)
-  fixed_url = fixed_url.replace('wid', element.wvmid)
-  fixed_url = fixed_url.replace('eid', element.eid)
+    fixed_url = fixed_url.replace('did', element.did)
+    fixed_url = fixed_url.replace('wid', element.wvmid)
+    fixed_url = fixed_url.replace('eid', element.eid)
 
-  response = client.api_client.request(method, url=base + fixed_url, query_params=params, headers=headers, body=payload)
-  print(response.status)
-  print(response.data)
-  parsed = json.loads(response.data)
-  # The command below prints the entire JSON response from Onshape
-  print(json.dumps(parsed, indent=4, sort_keys=True))
-  return parsed
+    response = client.api_client.request(method, url=base + fixed_url, query_params=params, headers=headers, body=payload)
+    print(response.status)
+    print(response.data)
+    parsed = json.loads(response.data)
+    # The command below prints the entire JSON response from Onshape
+    print(json.dumps(parsed, indent=4, sort_keys=True))
+    return parsed
 
 
 ##
