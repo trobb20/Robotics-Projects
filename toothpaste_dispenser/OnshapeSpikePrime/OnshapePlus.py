@@ -83,8 +83,6 @@ def getMates(client,url,base):
     fixed_url = fixed_url.replace('wid', element.wvmid)
     fixed_url = fixed_url.replace('eid', element.eid)
 
-    print(base + fixed_url)
-
     response = client.api_client.request(method, url=base + fixed_url, query_params=params, headers=headers, body=payload)
 
     parsed = json.loads(response.data)
