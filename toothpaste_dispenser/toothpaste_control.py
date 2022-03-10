@@ -119,14 +119,14 @@ def update_model(motor: Motor, current_pos: float, client, url, base):
         return current_pos
 
     # Move motor
-    if extrude > 0:
+    if math.floor(extrude) > 0:
         real_extrude = extrude_mm(motor, -15, extrude)
         new_pos = current_pos + real_extrude
-    elif extrude < 0:
+    elif math.floor(extrude) < 0:
         print('Moved model backwards, homing...')
         home(motor)
         new_pos = 0
-    elif extrude == 0:
+    elif math.floor(extrude) == 0:
         print('No need to update.')
         return current_pos
 
