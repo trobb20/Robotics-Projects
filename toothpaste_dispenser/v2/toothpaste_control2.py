@@ -94,7 +94,7 @@ def volume_extruded(d):
     return v_mm3
 
 
-def update_model(motor: Motor, current_pos: float, client, url, base):
+def update_model(current_pos: float, client, url, base):
     """
     Compares onshape model to real life and updates onshape model
     :param motor: buildhat Motor object
@@ -128,7 +128,7 @@ def update_model(motor: Motor, current_pos: float, client, url, base):
     return True
 
 
-def capture_blue(camera: picamera.PiCamera(), x_range = (20, 200), y_range = (65, 165)):
+def capture_blue(camera, calibration, x_range = (20, 200), y_range = (65, 165)):
     output = np.empty((240, 320, 3), dtype=np.uint8)
     camera.capture(output, 'rgb')
     cropped = output[x_range[0]:x_range[1], y_range[0]:y_range[1], :]
@@ -138,10 +138,10 @@ def capture_blue(camera: picamera.PiCamera(), x_range = (20, 200), y_range = (65
 
     n = ((r + g - b) / ((r + b + g) / 3))
 
-    return n
+    return n/calibration - 1
 
 
-def calibrate_blue(camera: picamera.PiCamera(), t: int, f = 4):
+def calibrate_blue(camera, t: int, f = 4):
     print('Calibrating for %s seconds...'%str(t))
     normalized_values = np.empty((t*f))
     for i in range(int(t*f)):
@@ -150,3 +150,11 @@ def calibrate_blue(camera: picamera.PiCamera(), t: int, f = 4):
 
     return np.mean(normalized_values)
 
+
+def detect_event(buffer, no_brush_thresh = 0.05, toothpaste_thresh = -0.05):
+    if np.mean(buffer) < toothpaste_thresh:
+        return 'toothpaste'
+    elif np.mean(buffer) > no_brush_thresh:
+        return 'no brush'
+    else:
+        return None

@@ -24,4 +24,3 @@ with picamera.PiCamera() as camera:
         plt.show()
         plt.pause(0.25)
 
-
