@@ -151,7 +151,7 @@ def calibrate_blue(camera, t: int, f = 4):
     return np.mean(normalized_values)
 
 
-def detect_event(buffer, no_brush_thresh = 0.05, toothpaste_thresh = -0.05):
+def detect_event(buffer, no_brush_thresh = 0.02, toothpaste_thresh = -0.05):
     if np.mean(buffer) < toothpaste_thresh:
         return 'toothpaste'
     elif np.mean(buffer) > no_brush_thresh:

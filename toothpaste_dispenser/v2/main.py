@@ -31,7 +31,6 @@ with picamera.PiCamera() as camera:
         while True:
             buffer = np.roll(buffer, 1)
             buffer[0] = capture_blue(camera)/toothbrush_no_paste - 1
-            print(buffer)
             event = detect_event(buffer)
             if event == 'toothpaste':
                 print('I see toothpaste!')
