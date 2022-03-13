@@ -1,5 +1,5 @@
 from buildhat import Motor
-from OnshapeSpikePrime.OnshapePlus import *
+from ..OnshapeSpikePrime.OnshapePlus import *
 
 mm_per_rev = 18.69
 backlash = 2
