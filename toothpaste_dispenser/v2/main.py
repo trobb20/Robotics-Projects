@@ -29,7 +29,7 @@ with picamera.PiCamera() as camera:
     try:
         print('Starting mainloop...')
         while True:
-            np.roll(buffer, 1)
+            buffer = np.roll(buffer, 1)
             buffer[0] = capture_blue(camera)/toothbrush_no_paste - 1
             print(buffer)
             event = detect_event(buffer)
