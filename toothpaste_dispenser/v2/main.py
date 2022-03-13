@@ -24,13 +24,14 @@ with picamera.PiCamera() as camera:
     print('Initialized Camera.')
     time.sleep(.25)
 
-    print('Calibrating toothbrush for 3 seconds')
     toothbrush_no_paste = calibrate_blue(camera, 3)
 
     try:
+        print('Starting mainloop...')
         while True:
             np.roll(buffer, 1)
             buffer[-1] = capture_blue(camera)/toothbrush_no_paste - 1
+            print(buffer)
             event = detect_event(buffer)
             if event == 'toothpaste':
                 print('I see toothpaste!')
@@ -38,6 +39,7 @@ with picamera.PiCamera() as camera:
                 print('Brush unloaded!')
 
             update_model(pos, client, url, base)
+            time.sleep(1/f)
 
 
 
