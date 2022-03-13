@@ -1,5 +1,8 @@
 from buildhat import Motor
 from OnshapeSpikePrime.OnshapePlus import *
+import picamera
+import numpy as np
+import time
 
 mm_per_rev = 18.69
 backlash = 2
@@ -56,10 +59,10 @@ def home(motor: Motor, speed: int = 25):
     :return: none
     """
     print('Homing motor...')
-    f = 20              # frequency to check position
-    runtime_max = 3     # max time to search for home
-    ramp_time = 0.5     # grace period at start of homing sequence
-    backlash = 0.05     # rotations to back off from hard object
+    f = 20  # frequency to check position
+    runtime_max = 3  # max time to search for home
+    ramp_time = 0.5  # grace period at start of homing sequence
+    backlash = 0.05  # rotations to back off from hard object
 
     motor.start(speed=speed)
     prev_position = motor.get_position()
@@ -93,16 +96,15 @@ def volume_extruded(d):
 
 def update_model(motor: Motor, current_pos: float, client, url, base):
     """
-    Compares onshape model to real life and moves motor based on it.
+    Compares onshape model to real life and updates onshape model
     :param motor: buildhat Motor object
     :param current_pos: current position of slider wrt home in mm
     :param client: onshape client
     :param url: assembly url
     :param base: base url
-    :return: returns new position in mm
+    :return: True if success
     """
     mate_pos = None
-    new_pos = None
     control_mate = None
 
     # Get mate position
@@ -112,38 +114,39 @@ def update_model(motor: Motor, current_pos: float, client, url, base):
             mate_pos = -mate['translationZ'] * 1000 - 6
             print('Position of slider: %f' % mate_pos)
 
-    if mate_pos is not None:
-        extrude = mate_pos - current_pos
-    else:
-        print('Error finding mate.')
-        return current_pos
-
-    # Move motor
-    if math.floor(extrude) > 0:
-        real_extrude = extrude_mm(motor, -15, extrude)
-        new_pos = current_pos + real_extrude
-    elif math.floor(extrude) < -1:
-        print('Moved model backwards, homing...')
-        home(motor)
-        new_pos = 0
-    else:
-        print('No need to update.')
-        return current_pos
-
-    if new_pos is not None:
-        print('New position: %f' % new_pos)
-    else:
-        print('Error finding new position.')
-        return current_pos
-
     # Update mate position
     if control_mate is not None:
         set_mate_JSON = control_mate
     else:
         print('Error finding mate.')
-        return current_pos
+        return False
 
-    set_mate_JSON['translationZ'] = (-new_pos - 6) / 1000
+    set_mate_JSON['translationZ'] = (-current_pos - 6) / 1000
     setMates(client, url, base, {'mateValues': [set_mate_JSON]})
+    print('Set new position to current: %f' % current_pos)
 
-    return new_pos
+    return True
+
+
+def capture_blue(camera: picamera.PiCamera(), x_range = (20, 200), y_range = (65, 165)):
+    output = np.empty((240, 320, 3), dtype=np.uint8)
+    camera.capture(output, 'rgb')
+    cropped = output[x_range[0]:x_range[1], y_range[0]:y_range[1], :]
+    r = np.mean(cropped[:, :, 0])
+    b = np.mean(cropped[:, :, 1])
+    g = np.mean(cropped[:, :, 2])
+
+    n = ((r + g - b) / ((r + b + g) / 3))
+
+    return n
+
+
+def calibrate_blue(camera: picamera.PiCamera(), t: int, f = 4):
+    print('Calibrating for %s seconds...'%str(t))
+    normalized_values = np.empty((t*f))
+    for i in range(int(t*f)):
+        normalized_values[i] = capture_blue(camera)
+        time.sleep(1/f)
+
+    return np.mean(normalized_values)
+
