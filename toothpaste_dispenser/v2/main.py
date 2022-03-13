@@ -4,7 +4,7 @@ paste_motor = Motor('C')
 brush_motor = Motor('D')
 base = 'https://cad.onshape.com'
 url = 'https://cad.onshape.com/documents/e61d2284326681e60c354303/w/06c3440ad86b926c4800c9f0/e/dbe6eb65c9ad4e1b46e8850b'
-client = configure_client('../OnshapeSpikePrime/apikeys.txt')
+client = configure_client('OnshapeSpikePrime/apikeys.txt')
 
 
 # PARAMETERS
@@ -30,7 +30,7 @@ with picamera.PiCamera() as camera:
     try:
         while True:
             np.roll(buffer, 1)
-            buffer[-1] = capture_blue(camera, toothbrush_no_paste)
+            buffer[-1] = capture_blue(camera)/toothbrush_no_paste - 1
             event = detect_event(buffer)
             if event == 'toothpaste':
                 print('I see toothpaste!')

@@ -128,7 +128,7 @@ def update_model(current_pos: float, client, url, base):
     return True
 
 
-def capture_blue(camera, calibration, x_range = (20, 200), y_range = (65, 165)):
+def capture_blue(camera, x_range = (20, 200), y_range = (65, 165)):
     output = np.empty((240, 320, 3), dtype=np.uint8)
     camera.capture(output, 'rgb')
     cropped = output[x_range[0]:x_range[1], y_range[0]:y_range[1], :]
@@ -138,7 +138,7 @@ def capture_blue(camera, calibration, x_range = (20, 200), y_range = (65, 165)):
 
     n = ((r + g - b) / ((r + b + g) / 3))
 
-    return n/calibration - 1
+    return n
 
 
 def calibrate_blue(camera, t: int, f = 4):
