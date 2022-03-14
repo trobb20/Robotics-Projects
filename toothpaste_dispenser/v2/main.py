@@ -91,7 +91,6 @@ with picamera.PiCamera() as camera:
                 else:
                     brush_timeout_count = brush_timeout_count + 1
 
-
             time.sleep(1 / f)
 
     except KeyboardInterrupt:
