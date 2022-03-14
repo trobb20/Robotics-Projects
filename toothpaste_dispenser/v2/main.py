@@ -22,7 +22,7 @@ brush_motor_out_rotations = -1.5
 print('Preparing system.')
 home(paste_motor)
 home(brush_motor)
-brush_motor.run_for_rotations(brush_motor_out_rotations, speed=25)
+
 
 
 # MAINLOOP
@@ -34,6 +34,7 @@ with picamera.PiCamera() as camera:
     time.sleep(.25)
 
     toothbrush_no_paste = calibrate_blue(camera, 3)
+    brush_motor.run_for_rotations(brush_motor_out_rotations, speed=10)
 
     try:
         print('Starting mainloop...')
