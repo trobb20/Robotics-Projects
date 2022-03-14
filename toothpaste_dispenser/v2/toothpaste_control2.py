@@ -61,7 +61,7 @@ def home(motor: Motor, speed: int = 25):
     print('Homing motor...')
     f = 20  # frequency to check position
     runtime_max = 3  # max time to search for home
-    ramp_time = 0.5  # grace period at start of homing sequence
+    ramp_time = 1  # grace period at start of homing sequence
     backlash = 0.05  # rotations to back off from hard object
 
     motor.start(speed=speed)
