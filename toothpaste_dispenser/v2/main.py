@@ -19,7 +19,7 @@ f = 4  # hz to run at
 buffer_length = 1 * f  # seconds of buffer
 buffer = np.zeros(buffer_length)
 brush_motor_out_rotations = -1.5
-brush_timeout_s = 5
+brush_timeout_s = 3
 
 # INIT
 print('Preparing system.')
@@ -84,7 +84,7 @@ with picamera.PiCamera() as camera:
                 extrude = 0
 
             elif extruding and event is None:
-                if brush_timeout_s > brush_timeout_count / f:
+                if brush_timeout_count / f > brush_timeout_s:
                     print('Brush timeout! No paste was extruded.')
                     extruding = False
                     brush_timeout_count = 0
