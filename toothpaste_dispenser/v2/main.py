@@ -69,7 +69,7 @@ with picamera.PiCamera() as camera:
                 while not button.is_pressed():
                     pass
                 loaded = True
-                home(brush_motor, speed=-25)
+                home(brush_motor)
 
             elif not extruding and event is None:
                 print('Brush inserted and ready for toothpaste! Press button to extrude.')
