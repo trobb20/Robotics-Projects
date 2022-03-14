@@ -70,7 +70,7 @@ def home(motor: Motor, speed: int = 25):
     while time.time() - start < runtime_max:
         pos = motor.get_position()
         delta = pos - prev_position
-        if abs(delta < 5) and time.time() - start > ramp_time:
+        if abs(delta < 2) and time.time() - start > ramp_time:
             break
         prev_position = pos
         time.sleep(1 / f)
