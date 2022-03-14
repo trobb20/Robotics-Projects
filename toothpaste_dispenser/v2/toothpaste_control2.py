@@ -1,4 +1,4 @@
-from buildhat import Motor
+from buildhat import Motor, ForceSensor
 from OnshapeSpikePrime.OnshapePlus import *
 import picamera
 import numpy as np
