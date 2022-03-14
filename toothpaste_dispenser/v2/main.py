@@ -26,17 +26,19 @@ print('Preparing system.')
 home(paste_motor)
 home(brush_motor)
 
-
-
 # MAINLOOP
 with picamera.PiCamera() as camera:
+    # Initialize camera
     camera.resolution = (320, 240)
     camera.framerate = 24
     time.sleep(2)
     print('Initialized Camera.')
     time.sleep(.25)
 
+    # Calibrate toothbrush values
     toothbrush_no_paste = calibrate_blue(camera, 3)
+
+    # Move brush out for loading
     brush_motor.run_for_rotations(brush_motor_out_rotations, speed=10)
 
     try:

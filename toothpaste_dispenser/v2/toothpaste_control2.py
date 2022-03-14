@@ -128,7 +128,18 @@ def update_model(current_pos: float, client, url, base):
     return True
 
 
-def capture_blue(camera, x_range = (20, 200), y_range = (65, 165)):
+def capture_blue(camera, x_range=(20, 200), y_range=(65, 165)):
+    """
+    Captures the relative amount of blue in a 240 x 320 pixel array cropped
+    to x_range and y_range.
+
+    Returns (r+g-b)/((r+b+g)/3) where r, b, and g are the average intensities of
+    red, green, and blue light in the image.
+    :param camera: picam object to use for image processing
+    :param x_range: x range of pixels to crop to (tuple)
+    :param y_range: y range of pixels to crop to
+    :return: n: normalized amount of blue light in the image
+    """
     output = np.empty((240, 320, 3), dtype=np.uint8)
     camera.capture(output, 'rgb')
     cropped = output[x_range[0]:x_range[1], y_range[0]:y_range[1], :]
@@ -141,17 +152,32 @@ def capture_blue(camera, x_range = (20, 200), y_range = (65, 165)):
     return n
 
 
-def calibrate_blue(camera, t: int, f = 4):
-    print('Calibrating for %s seconds...'%str(t))
-    normalized_values = np.empty((t*f))
-    for i in range(int(t*f)):
+def calibrate_blue(camera, t: int, f=4):
+    """
+    Calibrates the amount of blue light in an image for t seconds at f frequency
+    :param camera: Picam object
+    :param t: number of seconds to take data for
+    :param f: frequency at which to take blue light readings
+    :return: mean blue light amount in the current image over calibration period
+    """
+    print('Calibrating for %s seconds...' % str(t))
+    normalized_values = np.empty((t * f))
+    for i in range(int(t * f)):
         normalized_values[i] = capture_blue(camera)
-        time.sleep(1/f)
+        time.sleep(1 / f)
 
     return np.mean(normalized_values)
 
 
-def detect_event(buffer, no_brush_thresh = 0.02, toothpaste_thresh = -0.05):
+def detect_event(buffer, no_brush_thresh=0.02, toothpaste_thresh=-0.05):
+    """
+    Compares a buffer of normalized blue light readings to see if a toothbrush is present,
+    and whether it has paste on it.
+    :param buffer: buffer of readings
+    :param no_brush_thresh: threshold to see "no brush"
+    :param toothpaste_thresh: threshhold to see "toothpaste"
+    :return: string of current state, or none if nothing detected.
+    """
     if np.mean(buffer) < toothpaste_thresh:
         return 'toothpaste'
     elif np.mean(buffer) > no_brush_thresh:
