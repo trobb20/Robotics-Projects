@@ -11,6 +11,7 @@ extruding = False
 loaded = False
 pos = 0
 volume = 0
+extrude = 0
 
 # PARAMETERS
 f = 4  # hz to run at
@@ -62,7 +63,6 @@ with picamera.PiCamera() as camera:
 
             elif not loaded and event == 'no brush':
                 print('No brush... Press button to load.')
-                extrude = 0
                 # when button pressed, home the brush motor to check if its loaded
                 while not button.is_pressed():
                     pass
@@ -76,10 +76,12 @@ with picamera.PiCamera() as camera:
                     pass
                 extruding = True
                 extrude = extrude_mm(paste_motor, -20, 10)
+                pos = pos + extrude
+                volume = volume + volume_extruded(extrude)
+                update_model(pos, client, url, base)
+                extrude = 0
 
-            pos = pos + extrude
-            volume = volume + volume_extruded(extrude)
-            update_model(pos, client, url, base)
+
             time.sleep(1 / f)
 
     except KeyboardInterrupt:
