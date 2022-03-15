@@ -1,26 +1,33 @@
-import time
-import picamera
+import cv2 as cv
 import numpy as np
-import matplotlib.pyplot as plt
-from toothpaste_control2 import *
+import time
 
-with picamera.PiCamera() as camera:
-    camera.resolution = (320, 240)
-    camera.framerate = 24
-    time.sleep(2)
-    print('Initialized Camera.')
-    toothbrush = calibrate_blue(camera, 5)
-    print(toothbrush)
+cap = cv.VideoCapture(0)
 
-    x = []
-    values = []
 
-    plt.figure()
+def mask_magnitude(mask):
+    mask_magnitude = np.sum(mask) / (mask.shape[0] * mask.shape[1]) * (100 / 255)
+    return mask_magnitude
 
-    for i in range(4*10):
-        x.append(i)
-        values.append(capture_blue(camera)/toothbrush - 1)
-        plt.plot(x, values)
-        plt.show()
-        plt.pause(0.25)
+
+lower = np.array([0, 0, 191])
+upper = np.array([180, 255, 255])
+
+try:
+    while True:
+        # Take each frame
+        _, frame = cap.read()
+        hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
+        mask = cv.inRange(hsv, lower, upper)
+        mag = mask_magnitude(mask)
+        print('Magnitude is %s'%str(mag))
+
+        cv.imshow('frame', frame)
+        cv.imshow('mask', mask)
+
+        time.sleep(.25)
+
+except KeyboardInterrupt:
+    exit()
+
 
