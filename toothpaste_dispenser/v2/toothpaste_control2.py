@@ -169,7 +169,7 @@ def calibrate_blue(camera, t: int, f=4):
     return np.mean(normalized_values)
 
 
-def detect_event(buffer, no_brush_thresh=0.02, toothpaste_thresh=-0.05):
+def detect_event(buffer, no_brush_thresh=0.02, toothpaste_thresh=-0.02):
     """
     Compares a buffer of normalized blue light readings to see if a toothbrush is present,
     and whether it has paste on it.
