@@ -35,9 +35,15 @@ with picamera.PiCamera() as camera:
     print('Initialized Camera.')
     time.sleep(.25)
 
+    print('Press button to calibrate toothbrush light levels...')
+    # when button pressed, home the brush motor to check if its loaded
+    while not button.is_pressed():
+        pass
+
     # Calibrate toothbrush values
     toothbrush_no_paste = calibrate_blue(camera, 3)
 
+    print('Calibration done. Ready to load brush!')
     # Move brush out for loading
     brush_motor.run_for_rotations(brush_motor_out_rotations, speed=10)
 
