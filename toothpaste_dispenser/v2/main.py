@@ -65,6 +65,7 @@ with picamera.PiCamera() as camera:
                 time.sleep(1)
 
                 print('Unloading brush...')
+                home(paste_motor)
                 brush_motor.run_for_rotations(brush_motor_out_rotations, speed=25)
                 print('%f mm3 of toothpaste remain.'%volume)
 
