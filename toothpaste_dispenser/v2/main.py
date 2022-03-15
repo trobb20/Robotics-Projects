@@ -76,7 +76,15 @@ with picamera.PiCamera() as camera:
                 # when button pressed, home the brush motor to check if its loaded
                 while not button.is_pressed():
                     pass
+                home(brush_motor)
+                time.sleep(1)
                 loaded = True
+
+            elif loaded and event == 'no brush':
+                print('Brush did not load. Press button to try again...')
+                # when button pressed, home the brush motor to check if its loaded
+                while not button.is_pressed():
+                    pass
                 home(brush_motor)
 
             elif not extruding and event is None:
