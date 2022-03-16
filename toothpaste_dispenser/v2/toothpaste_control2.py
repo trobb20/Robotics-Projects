@@ -159,11 +159,13 @@ def percent_color_in_image(img, lower_bound, upper_bound, show_mask=False, img_f
     img = cv.cvtColor(img, img_fmt)
     mask = cv.inRange(img, lower_bound, upper_bound)
     # Perform opening to reduce noise
-    kernel = np.ones((10,10), np.uint8)
+    kernel = np.ones((10, 10), np.uint8)
     opening = cv.morphologyEx(mask, cv.MORPH_OPEN, kernel)
+
     if show_mask:
         plt.imshow(cv.cvtColor(opening, cv.COLOR_BGR2RGB))
         plt.show()
+
     percentage = mask_magnitude(opening)
     return percentage
 
@@ -198,11 +200,9 @@ def detect_event(img, brush_lower, brush_upper, paste_lower, paste_upper, detect
     high_s[:, :, 1] = 255
     high_s = cv.cvtColor(high_s, cv.COLOR_HSV2RGB)
 
-    print('Checking for brush: ')
     brush_amt = percent_color_in_image(high_c, brush_lower, brush_upper)
     print('%f percent brush' % brush_amt)
 
-    print('Checking for paste: ')
     paste_amt = percent_color_in_image(high_s, paste_lower, paste_upper)
     print('%f percent paste' % paste_amt)
 

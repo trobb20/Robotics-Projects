@@ -11,7 +11,7 @@ client = configure_client('OnshapeSpikePrime/apikeys.txt')
 extruding = False
 loaded = False
 pos = 0
-volume = 0
+volume = 12329.897
 extrude = 0
 brush_timeout_count = 0
 
