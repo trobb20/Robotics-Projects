@@ -158,10 +158,13 @@ def percent_color_in_image(img, lower_bound, upper_bound, show_mask=False, img_f
     """
     img = cv.cvtColor(img, img_fmt)
     mask = cv.inRange(img, lower_bound, upper_bound)
+    # Perform opening to reduce noise
+    kernel = np.ones((10,10), np.uint8)
+    opening = cv.morphologyEx(mask, cv.MORPH_OPEN, kernel)
     if show_mask:
-        plt.imshow(cv.cvtColor(mask, cv.COLOR_BGR2RGB))
+        plt.imshow(cv.cvtColor(opening, cv.COLOR_BGR2RGB))
         plt.show()
-    percentage = mask_magnitude(mask)
+    percentage = mask_magnitude(opening)
     return percentage
 
 
@@ -175,7 +178,7 @@ def mask_magnitude(mask):
     return magnitude
 
 
-def detect_event(img, brush_lower, brush_upper, paste_lower, paste_upper, detection_thresh=5):
+def detect_event(img, brush_lower, brush_upper, paste_lower, paste_upper, detection_thresh=25):
     """
     Compares an image of a toothbrush with hsv bounds for paste and brush
     Returns if it believes it sees a brush or it sees paste
@@ -193,7 +196,7 @@ def detect_event(img, brush_lower, brush_upper, paste_lower, paste_upper, detect
     # Saturate image to check for paste
     high_s = cv.cvtColor(img, cv.COLOR_RGB2HSV)
     high_s[:, :, 1] = 255
-    high_s = cv.cvtColor(img, cv.COLOR_HSV2RGB)
+    high_s = cv.cvtColor(high_s, cv.COLOR_HSV2RGB)
 
     print('Checking for brush: ')
     brush_amt = percent_color_in_image(high_c, brush_lower, brush_upper)

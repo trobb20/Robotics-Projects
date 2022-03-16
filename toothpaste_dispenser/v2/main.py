@@ -21,7 +21,7 @@ brush_motor_out_rotations = -1.5
 brush_timeout_s = 3
 brush_lower = np.array([0, 0, 255 / 2])
 brush_upper = np.array([0, 255 / 2, 255])
-paste_lower = np.array([160 / 2, 50, 50])
+paste_lower = np.array([160 / 2, 0, 0])
 paste_upper = np.array([255 / 2, 255, 255])
 
 # INIT
