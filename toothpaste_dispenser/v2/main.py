@@ -1,4 +1,5 @@
 from toothpaste_control2 import *
+from buildhat import ForceSensor
 
 # DECLARATIONS
 paste_motor = Motor('C')
@@ -16,10 +17,12 @@ brush_timeout_count = 0
 
 # PARAMETERS
 f = 4  # hz to run at
-buffer_length = 1 * f  # seconds of buffer
-buffer = np.zeros(buffer_length)
 brush_motor_out_rotations = -1.5
 brush_timeout_s = 3
+brush_lower = np.array([0, 0, 255 / 2])
+brush_upper = np.array([0, 255 / 2, 255])
+paste_lower = np.array([160 / 2, 50, 50])
+paste_upper = np.array([255 / 2, 255, 255])
 
 # INIT
 print('Preparing system.')
@@ -35,28 +38,19 @@ with picamera.PiCamera() as camera:
     print('Initialized Camera.')
     time.sleep(.25)
 
-    print('Press button to calibrate toothbrush light levels...')
-    # when button pressed, home the brush motor to check if its loaded
-    while not button.is_pressed():
-        pass
-
-    # Calibrate toothbrush values
-    toothbrush_no_paste = calibrate_blue(camera, 3)
-
-    print('Calibration done. Ready to load brush!')
+    print('Ready to load brush!')
     # Move brush out for loading
     brush_motor.run_for_rotations(brush_motor_out_rotations, speed=10)
 
     try:
         print('Starting mainloop...')
         while True:
-            # Update camera buffer and check events
-            buffer = np.roll(buffer, 1)
-            buffer[0] = capture_blue(camera) / toothbrush_no_paste - 1
-            event = detect_event(buffer)
+            # Grab an image and detect the event associated with it
+            img = capture_and_crop(camera)
+            event = detect_event(img, brush_lower, brush_upper, paste_lower, paste_upper)
 
             # State machine
-            if event == 'toothpaste':
+            if event == 'paste':
                 print('I see toothpaste!')
                 # Take a photo of toothpaste and unload brush
                 time.sleep(1)
@@ -71,8 +65,9 @@ with picamera.PiCamera() as camera:
 
                 extruding = False
                 loaded = False
+                continue
 
-            elif not loaded and event == 'no brush':
+            elif not loaded and event is None:
                 print('No brush... Press button to load.')
                 # when button pressed, home the brush motor to check if its loaded
                 while not button.is_pressed():
@@ -80,15 +75,17 @@ with picamera.PiCamera() as camera:
                 home(brush_motor)
                 time.sleep(1)
                 loaded = True
+                continue
 
-            elif loaded and event == 'no brush':
+            elif loaded and event is None:
                 print('Brush did not load. Press button to try again...')
                 # when button pressed, home the brush motor to check if its loaded
                 while not button.is_pressed():
                     pass
                 home(brush_motor)
+                continue
 
-            elif not extruding and event is None:
+            elif not extruding and event == 'brush':
                 print('Brush inserted and ready for toothpaste! Press button to extrude.')
                 # wait for button press
                 while not button.is_pressed():
@@ -99,14 +96,16 @@ with picamera.PiCamera() as camera:
                 volume = volume + volume_extruded(extrude)
                 update_model(pos, client, url, base)
                 extrude = 0
+                continue
 
-            elif extruding and event is None:
+            elif extruding and event == 'brush':
                 if brush_timeout_count / f > brush_timeout_s:
                     print('Brush timeout! No paste was extruded.')
                     extruding = False
                     brush_timeout_count = 0
                 else:
                     brush_timeout_count = brush_timeout_count + 1
+                continue
 
             time.sleep(1 / f)
 

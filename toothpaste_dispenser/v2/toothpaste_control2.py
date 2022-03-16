@@ -1,8 +1,10 @@
-from buildhat import Motor, ForceSensor
+from buildhat import Motor
 from OnshapeSpikePrime.OnshapePlus import *
 import picamera
+import cv2 as cv
 import numpy as np
 import time
+import matplotlib.pyplot as plt
 
 mm_per_rev = 18.69
 backlash = 2
@@ -128,59 +130,77 @@ def update_model(current_pos: float, client, url, base):
     return True
 
 
-def capture_blue(camera, x_range=(20, 200), y_range=(65, 165)):
+def capture_and_crop(camera, x_range=(20, 200), y_range=(65, 165)):
     """
-    Captures the relative amount of blue in a 240 x 320 pixel array cropped
-    to x_range and y_range.
-
-    Returns (r+g-b)/((r+b+g)/3) where r, b, and g are the average intensities of
-    red, green, and blue light in the image.
-    :param camera: picam object to use for image processing
-    :param x_range: x range of pixels to crop to (tuple)
-    :param y_range: y range of pixels to crop to
-    :return: n: normalized amount of blue light in the image
+    Captures a photo on picamera camera and returns cropped image in
+    x_range and y_range
+    :param camera: picamera camera
+    :param x_range: tuple of min, max pixels in x
+    :param y_range: tuple of min, max pixels in y
+    :return: cropped image
     """
     output = np.empty((240, 320, 3), dtype=np.uint8)
     camera.capture(output, 'rgb')
     cropped = output[x_range[0]:x_range[1], y_range[0]:y_range[1], :]
-    r = np.mean(cropped[:, :, 0])
-    b = np.mean(cropped[:, :, 1])
-    g = np.mean(cropped[:, :, 2])
-
-    n = ((r + g - b) / ((r + b + g) / 3))
-
-    return n
+    return cropped
 
 
-def calibrate_blue(camera, t: int, f=4):
+def percent_color_in_image(img, lower_bound, upper_bound, show_mask=False, img_fmt=cv.COLOR_RGB2HSV):
     """
-    Calibrates the amount of blue light in an image for t seconds at f frequency
-    :param camera: Picam object
-    :param t: number of seconds to take data for
-    :param f: frequency at which to take blue light readings
-    :return: mean blue light amount in the current image over calibration period
+    Gets the percent of an image that is within a certain hsv color range spanned
+    by lower_bound and upper bound
+    :param img_fmt: format of image to convert to HSV as opencv object. Default is RGB
+    :param img: image (RGB format) to analyze
+    :param lower_bound: hsv vector lower bound
+    :param upper_bound: hsv vector upper bound
+    :param show_mask: optional argument to show the img mask using matplotlib
+    :return: float percentage of image in color bounds
     """
-    print('Calibrating for %s seconds...' % str(t))
-    normalized_values = np.empty((t * f))
-    for i in range(int(t * f)):
-        normalized_values[i] = capture_blue(camera)
-        time.sleep(1 / f)
+    img = cv.cvtColor(img, img_fmt)
+    mask = cv.inRange(img, lower_bound, upper_bound)
+    if show_mask:
+        plt.imshow(cv.cvtColor(mask, cv.COLOR_BGR2RGB))
+        plt.show()
+    percentage = mask_magnitude(mask)
+    return percentage
 
-    return np.mean(normalized_values)
 
-
-def detect_event(buffer, no_brush_thresh=0.02, toothpaste_thresh=-0.02):
+def mask_magnitude(mask):
     """
-    Compares a buffer of normalized blue light readings to see if a toothbrush is present,
-    and whether it has paste on it.
-    :param buffer: buffer of readings
-    :param no_brush_thresh: threshold to see "no brush"
-    :param toothpaste_thresh: threshhold to see "toothpaste"
-    :return: string of current state, or none if nothing detected.
+    Computes the percentage of a mask that is "on"
+    :param mask: image mask of either 0,0,0 values or 255,255,255 values
+    :return: magnitude (or percentage) of pixels that are on
     """
-    if np.mean(buffer) < toothpaste_thresh:
-        return 'toothpaste'
-    elif np.mean(buffer) > no_brush_thresh:
-        return 'no brush'
+    magnitude = np.sum(mask) / (mask.shape[0] * mask.shape[1]) * (100 / 255)
+    return magnitude
+
+
+def detect_event(img, brush_lower, brush_upper, paste_lower, paste_upper, detection_thresh=5):
+    """
+    Compares an image of a toothbrush with hsv bounds for paste and brush
+    Returns if it believes it sees a brush or it sees paste
+    :param img: image to assess
+    :param brush_lower: lower bound for toothbrush hsv
+    :param brush_upper: upper bound for toothbrush hsv
+    :param paste_lower: lower bound for paste hsv
+    :param paste_upper: upper bound for paste hsv
+    :param detection_thresh: percentage of color that has to be in image for it to be detected
+    :return:
+    """
+    print('Checking for brush: ')
+    brush_amt = percent_color_in_image(img, brush_lower, brush_upper)
+    print('%f percent brush' % brush_amt)
+
+    print('Checking for paste: ')
+    paste_amt = percent_color_in_image(img, paste_lower, paste_upper)
+    print('%f percent paste' % paste_amt)
+
+    if brush_amt + paste_amt < detection_thresh:
+        guess = None
     else:
-        return None
+        if paste_amt < detection_thresh:
+            guess = 'brush'
+        else:
+            guess = 'paste'
+
+    return guess
