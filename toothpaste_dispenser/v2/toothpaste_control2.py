@@ -191,7 +191,7 @@ def detect_event(img, brush_lower, brush_upper, paste_lower, paste_upper, detect
     :return:
     """
     # Brighten image to check for brush
-    high_c = cv.convertScaleAbs(img, alpha=1.5)
+    high_c = cv.convertScaleAbs(img, alpha=2)
 
     # Saturate image to check for paste
     high_s = cv.cvtColor(img, cv.COLOR_RGB2HSV)
