@@ -22,6 +22,8 @@ with picamera.PiCamera() as camera:
         while True:
             # Grab an image and detect the event associated with it
             img = capture_and_crop(camera)
+            plt.imshow(img)
+            plt.show()
             percentage = percent_color_in_image(img, brush_lower, brush_upper, show_mask=True)
             print(percentage)
             time.sleep(.25)
