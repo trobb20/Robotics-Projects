@@ -187,12 +187,20 @@ def detect_event(img, brush_lower, brush_upper, paste_lower, paste_upper, detect
     :param detection_thresh: percentage of color that has to be in image for it to be detected
     :return:
     """
+    # Brighten image to check for brush
+    high_c = cv.convertScaleAbs(img, alpha=1.5)
+
+    # Saturate image to check for paste
+    high_s = cv.cvtColor(img, cv.COLOR_RGB2HSV)
+    high_s[:, :, 1] = 255
+    high_s = cv.cvtColor(img, cv.COLOR_HSV2RGB)
+
     print('Checking for brush: ')
-    brush_amt = percent_color_in_image(img, brush_lower, brush_upper)
+    brush_amt = percent_color_in_image(high_c, brush_lower, brush_upper)
     print('%f percent brush' % brush_amt)
 
     print('Checking for paste: ')
-    paste_amt = percent_color_in_image(img, paste_lower, paste_upper)
+    paste_amt = percent_color_in_image(high_s, paste_lower, paste_upper)
     print('%f percent paste' % paste_amt)
 
     if brush_amt + paste_amt < detection_thresh:
