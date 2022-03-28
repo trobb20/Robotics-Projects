@@ -3,9 +3,6 @@
 
 # Edited by Teddy Robbins for use in ME35 at Tufts Univ. 2022
 
-"""This example uses the capacitive touch pads on the Circuit Playground. They are located around
-the outer edge of the board and are labeled A1-A6 and TX. (A0 is not a touch pad.) This example
-lights up all the NeoPixels a different color of the rainbow for each pad touched!"""
 import random
 import time
 from adafruit_circuitplayground import cp
